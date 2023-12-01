@@ -80,6 +80,7 @@ void apogee (float alt, float prev_alt){
 }
 
 // DESCENT state func
+
 bool firingStatus = false;
 unsigned long fireTime;
 
@@ -97,6 +98,12 @@ void depChutes(int py1){
     //Stop pyro charge
     digitalWrite(py1, LOW);
     firingStatus = false;
+  }
+}
+
+void chuteAlt (float alt, int py1){
+  if (alt <= 900){
+    depChutes(py1);
   }
 }
 

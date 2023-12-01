@@ -36,8 +36,8 @@ void setup()
   gyro.begin();
   MSXX.begin();
   MSXX.configBaro(BARO_PRESS_D1_OSR_4096, BARO_TEMP_D2_OSR_4096);
-  mag.init();
-  mag.enableDefault();
+  // mag.init();
+  // mag.enableDefault();
 
   // starting GNSS
   gnss.begin();
@@ -56,9 +56,9 @@ void setup()
   SerialFlash.begin(flash_cs);
 
   // starting LoRa radio
-  // ESerial.begin(9600);
-  // Transceiver.init();
-  // myTransfer.begin(ESerial);
+  ESerial.begin(9600);
+  Transceiver.init();
+  myTransfer.begin(ESerial);
 
   openFile();
   openFlashFile();
@@ -88,7 +88,7 @@ void dataUpdate(){
   accel.readSensor();
   gyro.readSensor();
   baro_DRDY = MSXX.doBaro(true);
-  mag.read();
+  // mag.read();
 
   // raw  sensor data
 
@@ -208,7 +208,7 @@ void loop()
     dataUpdate(); // creates and updates the data variables
   }
 
-  // sendTLMData();
+  sendTLMData();
   sendGCSData();
   
   //state machine
@@ -217,7 +217,6 @@ void loop()
     offset_baro();
     pyro_low(pyro1, pyro2); 
     initialize(millistime);
-    eraseFlash(); // deletes flash data if computer has not properly power cycled
   }
   if (state == IDLE){ // waiting for launch 
     launchdetect(gaxRaw);
@@ -233,7 +232,7 @@ void loop()
   else if (state == DESCENT){ // we have reached apogee deploy chutes and check if we are under 5 meters
     led_descent();
     dataLog(state); 
-    depChutes(pyro1);
+    chuteAlt(kalmanalt, pyro1);
     landed_check(kalmanalt);
   }
   else if (state == LANDED){ // we have landed transferring data from flash to micro sd
